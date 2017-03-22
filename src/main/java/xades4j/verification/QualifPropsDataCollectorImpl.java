@@ -18,11 +18,13 @@ package xades4j.verification;
 
 import java.util.Collection;
 import xades4j.properties.data.AllDataObjsTimeStampData;
+import xades4j.properties.data.CertificateValuesData;
 import xades4j.properties.data.CompleteCertificateRefsData;
 import xades4j.properties.data.CompleteRevocationRefsData;
 import xades4j.properties.data.GenericDOMData;
 import xades4j.properties.data.IndividualDataObjsTimeStampData;
 import xades4j.properties.data.OtherPropertyData;
+import xades4j.properties.data.SigAndRefsTimeStampData;
 import xades4j.properties.data.SignaturePolicyData;
 import xades4j.properties.data.SignatureTimeStampData;
 import xades4j.properties.data.SignerRoleData;
@@ -30,6 +32,7 @@ import xades4j.utils.PropertiesSet;
 import xades4j.properties.data.CommitmentTypeData;
 import xades4j.properties.data.DataObjectFormatData;
 import xades4j.properties.data.PropertyDataObject;
+import xades4j.properties.data.RevocationValuesData;
 import xades4j.xml.unmarshalling.QualifyingPropertiesDataCollector;
 import xades4j.properties.data.SignatureProdPlaceData;
 import xades4j.properties.data.SigningCertificateData;
@@ -140,4 +143,23 @@ class QualifPropsDataCollectorImpl implements QualifyingPropertiesDataCollector
     {
         return propsData.getProperties();
     }
+
+    @Override
+    public void addSigAndRefsTimeStamp(SigAndRefsTimeStampData tsData)
+    {
+    	propsData.add(tsData);
+    }
+
+    @Override
+    public void setCertificateValues(CertificateValuesData certificateValuesData)
+    {
+    	 propsData.put(certificateValuesData);
+    }
+
+    @Override
+    public void setRevocationValues(RevocationValuesData revocationValuesData)
+    {
+    	 propsData.put(revocationValuesData);
+    }
+
 }

@@ -17,19 +17,22 @@
 package xades4j.xml.unmarshalling;
 
 import xades4j.properties.data.AllDataObjsTimeStampData;
-import xades4j.properties.data.SigningTimeData;
-import xades4j.properties.data.SigningCertificateData;
-import xades4j.properties.data.SignatureProdPlaceData;
-import xades4j.properties.data.DataObjectFormatData;
+import xades4j.properties.data.CertificateValuesData;
 import xades4j.properties.data.CommitmentTypeData;
 import xades4j.properties.data.CompleteCertificateRefsData;
 import xades4j.properties.data.CompleteRevocationRefsData;
+import xades4j.properties.data.DataObjectFormatData;
 import xades4j.properties.data.GenericDOMData;
 import xades4j.properties.data.IndividualDataObjsTimeStampData;
 import xades4j.properties.data.OtherPropertyData;
+import xades4j.properties.data.RevocationValuesData;
+import xades4j.properties.data.SigAndRefsTimeStampData;
 import xades4j.properties.data.SignaturePolicyData;
+import xades4j.properties.data.SignatureProdPlaceData;
 import xades4j.properties.data.SignatureTimeStampData;
 import xades4j.properties.data.SignerRoleData;
+import xades4j.properties.data.SigningCertificateData;
+import xades4j.properties.data.SigningTimeData;
 
 /**
  * Passed to a {@link QualifyingPropertiesUnmarshaller} to collect the property
@@ -74,4 +77,10 @@ public interface QualifyingPropertiesDataCollector
     public void addGenericDOMData(GenericDOMData domData);
 
     public void addOther(OtherPropertyData otherData);
+    
+    public void addSigAndRefsTimeStamp(SigAndRefsTimeStampData tsData);
+
+    public void setCertificateValues(CertificateValuesData certificateValuesData);
+
+    public void setRevocationValues(RevocationValuesData revocationValuesData);
 }

@@ -16,7 +16,6 @@
  */
 package xades4j.providers.impl;
 
-import com.google.inject.Inject;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.Provider;
@@ -25,9 +24,9 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+
 import org.apache.xml.security.algorithms.MessageDigestAlgorithm;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -42,6 +41,9 @@ import org.bouncycastle.tsp.TSPException;
 import org.bouncycastle.tsp.TSPValidationException;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.bouncycastle.util.Selector;
+
+import com.google.inject.Inject;
+
 import xades4j.UnsupportedAlgorithmException;
 import xades4j.XAdES4jException;
 import xades4j.providers.CertificateValidationProvider;
@@ -103,7 +105,8 @@ public class DefaultTimeStampVerificationProvider implements TimeStampVerificati
     }
 
     @Override
-    public Date verifyToken(byte[] timeStampToken, byte[] tsDigestInput) throws TimeStampTokenVerificationException
+    public Date verifyToken(byte[] timeStampToken, byte[] tsDigestInput)
+                            throws TimeStampTokenVerificationException
     {
         TimeStampToken tsToken;
         try

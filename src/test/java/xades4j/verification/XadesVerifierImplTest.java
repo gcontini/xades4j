@@ -74,7 +74,7 @@ public class XadesVerifierImplTest extends VerifierTestBase
         String sigFilename ="document.signed.bes.xml";
         Element signatureNode = getSigElement(getDocument(sigFilename));
         XadesVerificationProfile p = new XadesVerificationProfile(VerifierTestBase.validationProviderMySigs);
-        Date verificationDate = new SimpleDateFormat("YYYY").parse("2041");
+        Date verificationDate = new SimpleDateFormat("yyyy").parse("2041");
         p.newVerifier().verify(signatureNode, 
         		new SignatureSpecificVerificationOptions().setDefaultVerificationDate(verificationDate));
     }
@@ -226,7 +226,6 @@ public class XadesVerifierImplTest extends VerifierTestBase
 
         XadesSignatureFormatExtender formExt = new XadesFormatExtenderProfile().getFormatExtender();
         XAdESVerificationResult res = nistVerificationProfile.newVerifier().verify(signatureNode, null, formExt, XAdESForm.X_L);
-
         assertEquals(XAdESForm.C, res.getSignatureForm());
         assertPropElementPresent(signatureNode, SigAndRefsTimeStampProperty.PROP_NAME);
         assertPropElementPresent(signatureNode, CertificateValuesProperty.PROP_NAME);
@@ -234,6 +233,14 @@ public class XadesVerifierImplTest extends VerifierTestBase
 
         outputDocument(doc, "document.verified.c.xl.xml");
     }
+    
+	 @Test
+	public void testVerifyXL() throws Exception
+	{
+		System.out.println("verifyXL");
+		XAdESForm f = verifySignature("document.verified.c.xl.xml",nistVerificationProfile);
+		assertEquals(XAdESForm.X_L, f);
+	}
 
     private static void assertPropElementPresent(
             Element sigElem,

@@ -16,18 +16,22 @@
  */
 package xades4j.verification;
 
+import java.io.InputStream;
+import java.lang.reflect.ParameterizedType;
+
+import javax.xml.namespace.QName;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.util.Types;
-import java.io.InputStream;
-import java.lang.reflect.ParameterizedType;
-import javax.xml.namespace.QName;
+
 import xades4j.properties.CounterSignatureProperty;
 import xades4j.properties.ObjectIdentifier;
 import xades4j.properties.QualifyingProperty;
 import xades4j.properties.data.AllDataObjsTimeStampData;
+import xades4j.properties.data.CertificateValuesData;
 import xades4j.properties.data.CommitmentTypeData;
 import xades4j.properties.data.CompleteCertificateRefsData;
 import xades4j.properties.data.CompleteRevocationRefsData;
@@ -36,17 +40,19 @@ import xades4j.properties.data.DataObjectFormatData;
 import xades4j.properties.data.GenericDOMData;
 import xades4j.properties.data.IndividualDataObjsTimeStampData;
 import xades4j.properties.data.PropertyDataObject;
+import xades4j.properties.data.RevocationValuesData;
+import xades4j.properties.data.SigAndRefsTimeStampData;
 import xades4j.properties.data.SignaturePolicyData;
 import xades4j.properties.data.SignatureProdPlaceData;
 import xades4j.properties.data.SignatureTimeStampData;
 import xades4j.properties.data.SignerRoleData;
 import xades4j.properties.data.SigningCertificateData;
 import xades4j.properties.data.SigningTimeData;
-import xades4j.providers.impl.DefaultMessageDigestProvider;
-import xades4j.providers.impl.DefaultTimeStampVerificationProvider;
 import xades4j.providers.MessageDigestEngineProvider;
 import xades4j.providers.SignaturePolicyDocumentProvider;
 import xades4j.providers.TimeStampVerificationProvider;
+import xades4j.providers.impl.DefaultMessageDigestProvider;
+import xades4j.providers.impl.DefaultTimeStampVerificationProvider;
 import xades4j.utils.BuiltIn;
 
 /**
@@ -115,7 +121,9 @@ class DefaultVerificationBindingsModule extends AbstractModule
         bindBuiltInVerifier(SignatureTimeStampData.class, SignatureTimeStampVerifier.class);
         bindBuiltInVerifier(CompleteCertificateRefsData.class, CompleteCertRefsVerifier.class);
         bindBuiltInVerifier(CompleteRevocationRefsData.class, CompleteRevocRefsVerifier.class);
-        
+        bindBuiltInVerifier(SigAndRefsTimeStampData.class, SigAndRefsTimeStampVerifier.class);
+        bindBuiltInVerifier(CertificateValuesData.class, CertificateValuesVerifier.class);
+        bindBuiltInVerifier(RevocationValuesData.class, RevocationValuesVerifier.class);
         MapBinder<QName, QualifyingPropertyVerifier> unkownElemsBinder = MapBinder.newMapBinder(binder(), QName.class, QualifyingPropertyVerifier.class);
         unkownElemsBinder
                 .addBinding(new QName(QualifyingProperty.XADES_XMLNS, CounterSignatureProperty.PROP_NAME))
