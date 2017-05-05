@@ -18,12 +18,17 @@ package xades4j.production;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+
 import org.apache.xml.security.exceptions.XMLSecurityException;
+import org.apache.xml.security.keys.content.X509Data;
 import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.signature.XMLSignatureException;
+import org.apache.xml.security.transforms.Transforms;
 import xades4j.UnsupportedAlgorithmException;
+import xades4j.algorithms.Algorithm;
 import xades4j.providers.AlgorithmsProviderEx;
 import xades4j.providers.BasicSignatureOptionsProvider;
+import xades4j.utils.CanonicalizerUtils;
 
 /**
  * Helper class that creates the {@code ds:KeyInfo} element accordingly to some
@@ -68,9 +73,21 @@ class KeyInfoBuilder
 
         if (this.basicSignatureOptionsProvider.includeSigningCertificate())
         {
+            // Use same canonicalization URI as specified in the ds:CanonicalizationMethod for Signature.
+            Algorithm canonAlg = this.algorithmsProvider.getCanonicalizationAlgorithmForSignature();
+
             try
             {
-                xmlSig.addKeyInfo(signingCertificate);
+                X509Data x509Data = new X509Data(xmlSig.getDocument());
+                x509Data.addCertificate(signingCertificate);
+                x509Data.addSubjectName(signingCertificate);
+                x509Data.addIssuerSerial(signingCertificate.getIssuerX500Principal().getName(), signingCertificate.getSerialNumber());
+                xmlSig.getKeyInfo().add(x509Data);
+
+                CanonicalizerUtils.checkC14NAlgorithm(canonAlg);
+
+                Transforms transforms = new Transforms(xmlSig.getDocument());
+                transforms.addTransform(canonAlg.getUri(), xmlSig.getKeyInfo().getElement());
 
                 if (this.basicSignatureOptionsProvider.signSigningCertificate())
                 {
@@ -78,7 +95,7 @@ class KeyInfoBuilder
                     xmlSig.getKeyInfo().setId(keyInfoId);
                     xmlSig.addDocument(
                             '#' + keyInfoId,
-                            null,
+                            transforms,
                             this.algorithmsProvider.getDigestAlgorithmForDataObjsReferences());
                 }
             } catch (XMLSignatureException ex)
