@@ -19,6 +19,7 @@ package xades4j.production;
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
+
 import xades4j.properties.AllDataObjsCommitmentTypeProperty;
 import xades4j.properties.AllDataObjsTimeStampProperty;
 import xades4j.properties.ArchiveTimeStampProperty;
@@ -39,6 +40,7 @@ import xades4j.properties.SignatureTimeStampProperty;
 import xades4j.properties.SignerRoleProperty;
 import xades4j.properties.SigningCertificateProperty;
 import xades4j.properties.SigningTimeProperty;
+import xades4j.properties.TimeStampValidationDataProperty;
 import xades4j.properties.data.CustomPropertiesDataObjsStructureVerifier;
 import xades4j.providers.AlgorithmsProvider;
 import xades4j.providers.AlgorithmsProviderEx;
@@ -48,9 +50,9 @@ import xades4j.providers.MessageDigestEngineProvider;
 import xades4j.providers.SignaturePropertiesProvider;
 import xades4j.providers.TimeStampTokenProvider;
 import xades4j.providers.impl.DefaultAlgorithmsProviderEx;
+import xades4j.providers.impl.DefaultBasicSignatureOptionsProvider;
 import xades4j.providers.impl.DefaultMessageDigestProvider;
 import xades4j.providers.impl.DefaultSignaturePropertiesProvider;
-import xades4j.providers.impl.DefaultBasicSignatureOptionsProvider;
 import xades4j.providers.impl.HttpTimeStampTokenProvider;
 import xades4j.providers.impl.TSAHttpData;
 
@@ -170,5 +172,9 @@ class DefaultProductionBindingsModule extends AbstractModule
         bind(new TypeLiteral<PropertyDataObjectGenerator<ArchiveTimeStampProperty>>()
         {
         }).to(DataGenArchiveTimeStamp.class);
+        
+        bind(new TypeLiteral<PropertyDataObjectGenerator<TimeStampValidationDataProperty>>()
+        {
+        }).to(DataGenTimeStampValidationData.class);
     }
 }

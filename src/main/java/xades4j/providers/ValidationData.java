@@ -33,6 +33,8 @@ public class ValidationData
 {
     private final List<X509Certificate> certs;
     private final Collection<X509CRL> crls;
+    private final List<X509Certificate> timestampCerts;
+    private final Collection<X509CRL> timestampCrls;
 
     /**
      * @param crls the CRLs used to validate the certificates in {@code certs}. Might be {@code null}.
@@ -53,6 +55,36 @@ public class ValidationData
             this.crls = Collections.emptyList();
         else
             this.crls = Collections.unmodifiableCollection(crls);
+        timestampCerts = null;
+        timestampCrls = null;
+    }
+    
+    public ValidationData(
+    		List<X509Certificate> certs,
+            Collection<X509CRL> crls,List<X509Certificate> timestampCerts,
+            Collection<X509CRL> timestampCrls)
+    {
+        if (null == certs)
+            throw new NullPointerException("Null cert path");
+        if (certs.isEmpty())
+            throw new IllegalArgumentException("Empty cert path");
+
+        this.certs = Collections.unmodifiableList(certs);
+        if (null == crls)
+            this.crls = Collections.emptyList();
+        else
+            this.crls = Collections.unmodifiableCollection(crls);
+        
+        if (null == timestampCerts)
+            throw new NullPointerException("Null cert path");
+        if (timestampCerts.isEmpty())
+            throw new IllegalArgumentException("Empty cert path");
+
+        this.timestampCerts = Collections.unmodifiableList(timestampCerts);
+        if (null == timestampCrls)
+            this.timestampCrls = Collections.emptyList();
+        else
+            this.timestampCrls = Collections.unmodifiableCollection(timestampCrls);
     }
 
     public ValidationData(List<X509Certificate> certs)
@@ -68,5 +100,14 @@ public class ValidationData
     public Collection<X509CRL> getCrls()
     {
         return crls;
+    }
+    public List<X509Certificate> getTimestampCerts()
+    {
+        return timestampCerts;
+    }
+
+    public Collection<X509CRL> getTimestampCrls()
+    {
+        return timestampCrls;
     }
 }

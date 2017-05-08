@@ -29,6 +29,7 @@ import xades4j.properties.SigAndRefsTimeStampProperty;
 import xades4j.properties.SignaturePolicyBase;
 import xades4j.properties.SignatureTimeStampProperty;
 import xades4j.properties.SignedSignatureProperty;
+import xades4j.properties.TimeStampValidationDataProperty;
 import xades4j.properties.UnsignedSignatureProperty;
 import xades4j.providers.SignaturePolicyInfoProvider;
 import xades4j.providers.ValidationData;
@@ -83,6 +84,7 @@ public class PropertiesUtils
     {
         usp.add(new CertificateValuesProperty(vData.getCerts()));
         usp.add(new RevocationValuesProperty(vData.getCrls()));
+        usp.add(new TimeStampValidationDataProperty(vData.getTimestampCerts(),vData.getTimestampCrls()));
     }
 
     public static void addXadesAProperties(

@@ -68,6 +68,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
     "attrAuthoritiesCertValues",
     "attributeRevocationValues",
     "archiveTimeStamp",
+    "timeStampValidationData",
     "any"
 })
 public class XmlUnsignedSignaturePropertiesType
@@ -98,6 +99,8 @@ public class XmlUnsignedSignaturePropertiesType
     protected XmlRevocationValuesType attributeRevocationValues;
     @XmlElement(name = "ArchiveTimeStamp")
     protected List<XmlXAdESTimeStampType> archiveTimeStamp;
+    @XmlElement(name = "TimeStampValidationData")
+    protected XmlValidationDataType timeStampValidationData;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
     @XmlAttribute(name = "Id")
@@ -457,6 +460,32 @@ public class XmlUnsignedSignaturePropertiesType
         if (archiveTimeStamp == null)
             archiveTimeStamp = new ArrayList<XmlXAdESTimeStampType>();
         return this.archiveTimeStamp;
+    }
+    
+    /**
+     * Gets the value of the timeStampValidationData property.
+     *
+     * @return
+     *     possible object is
+     *     {@link XmlValidationDataType }
+     *
+     */
+    public XmlValidationDataType getTimeStampValidationData()
+    {
+        return timeStampValidationData;
+    }
+
+    /**
+     * Sets the value of the timeStampValidationData property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link XmlValidationDataType }
+     *
+     */
+    public void setTimeStampValidationData(XmlValidationDataType value)
+    {
+        this.timeStampValidationData = value;
     }
 
     /**

@@ -17,6 +17,7 @@
 package xades4j.properties.data;
 
 import xades4j.utils.DataGetterImpl;
+import xades4j.verification.TimeStampValidationDataVerifier;
 import xades4j.utils.DataGetter;
 import com.google.inject.Inject;
 import java.util.Collection;
@@ -31,6 +32,7 @@ import xades4j.properties.RevocationValuesProperty;
 import xades4j.properties.SigAndRefsTimeStampProperty;
 import xades4j.properties.SignatureTimeStampProperty;
 import xades4j.properties.SigningCertificateProperty;
+import xades4j.properties.TimeStampValidationDataProperty;
 
 /**
  *
@@ -91,6 +93,9 @@ public class PropertiesDataObjectsStructureVerifier
 
         structureVerifiers.put(ArchiveTimeStampData.class,
                 new BaseXAdESTimeStampDataStructureVerifier(ArchiveTimeStampProperty.PROP_NAME));
+        
+        structureVerifiers.put(TimeStampValidationDataData.class,
+                new TimeStampValidationDataVerifier());
 
         structureVerifiers.put(GenericDOMData.class,
                 new GenericDOMDataStructureVerifier());
