@@ -1,5 +1,7 @@
 package xades4j.properties.data;
 
+import java.security.cert.CRLException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -7,6 +9,7 @@ import java.util.List;
 
 import xades4j.xml.bind.xades.XmlCRLValuesType;
 import xades4j.xml.bind.xades.XmlCertificateValuesType;
+import xades4j.xml.bind.xades.XmlEncapsulatedPKIDataType;
 import xades4j.xml.bind.xades.XmlRevocationValuesType;
 
 public class TimeStampValidationDataData implements PropertyDataObject {
@@ -20,8 +23,16 @@ public class TimeStampValidationDataData implements PropertyDataObject {
 
         for (X509Certificate cert : certValues)
         {
-            xmlCerts.add(cert);
+            XmlEncapsulatedPKIDataType xmlEncodCert = new XmlEncapsulatedPKIDataType();
+            try {
+				xmlEncodCert.setValue(cert.getEncoded());
+			} catch (CertificateEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            xmlCerts.add(xmlEncodCert);
         }
+
         this.xmlCertificateValuesType = xmlCertValues;
         XmlRevocationValuesType xmlRevocValues = new XmlRevocationValuesType();
         XmlCRLValuesType xmlCRLValues = new XmlCRLValuesType();
@@ -31,7 +42,14 @@ public class TimeStampValidationDataData implements PropertyDataObject {
 
         for (X509CRL crl : crlValues)
         {
-            xmlCRLs.add(crl);
+            XmlEncapsulatedPKIDataType xmlEncodCert = new XmlEncapsulatedPKIDataType();
+            try {
+				xmlEncodCert.setValue(crl.getEncoded());
+			} catch (CRLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            xmlCRLs.add(xmlEncodCert);
         }
         this.xmlRevocationValuesType = xmlRevocValues;
 	}

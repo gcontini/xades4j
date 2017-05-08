@@ -99,7 +99,7 @@ public class XmlUnsignedSignaturePropertiesType
     protected XmlRevocationValuesType attributeRevocationValues;
     @XmlElement(name = "ArchiveTimeStamp")
     protected List<XmlXAdESTimeStampType> archiveTimeStamp;
-    @XmlElement(name = "TimeStampValidationData")
+    @XmlElement(name = "TimeStampValidationData" ,namespace = "http://uri.etsi.org/01903/v1.4.1#")
     protected XmlValidationDataType timeStampValidationData;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
