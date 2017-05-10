@@ -1,5 +1,11 @@
 package xades4j.verification;
 
+import java.io.ByteArrayInputStream;
+import java.security.cert.CRL;
+import java.security.cert.CRLException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +33,25 @@ public class TimeStampValidationDataVerifier implements  QualifyingPropertyVerif
 		XmlRevocationValuesType xmlRevocationValuesType = propData.getXmlRevocationValuesType();
 		XmlCRLValuesType crlValues = xmlRevocationValuesType.getCRLValues();
 		List<XmlEncapsulatedPKIDataType> encapsulatedCRLValue = crlValues.getEncapsulatedCRLValue();
+		CertificateFactory instance;
+		try {
+			instance = CertificateFactory.getInstance("X509");
+		} catch (CertificateException e) {
+			throw new RevocationValuesVerificationException(e);
+		}
+		List<X509CRL> crls = new ArrayList<X509CRL>();
 		for (XmlEncapsulatedPKIDataType xmlEncapsulatedPKIDataType : encapsulatedCRLValue) {
+			byte[] value = xmlEncapsulatedPKIDataType.getValue();
+			try {
+				CRL crl = instance.generateCRL(new ByteArrayInputStream(value));
+				crls.add((X509CRL)crl);
+			} catch (CRLException e) {
+				throw new RevocationValuesVerificationException(e);
+			}
+			
 		}
 		
-		return new TimeStampValidationDataProperty(certs, null);
+		return new TimeStampValidationDataProperty(certs, crls);
 	}
 
 

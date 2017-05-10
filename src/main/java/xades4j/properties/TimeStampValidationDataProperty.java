@@ -27,13 +27,13 @@ import java.util.List;
  * */
 public final class TimeStampValidationDataProperty extends UnsignedSignatureProperty
 {
-    public static final String PROP_NAME = "xadesv141:TimeStampValidationData";
+    public static final String PROP_NAME = "TimeStampValidationData";
     
-    private final List<X509Certificate> certificates;
+    private final List<X509Certificate> cers;
     private final Collection<X509CRL> crls;
     
-    public TimeStampValidationDataProperty(List<X509Certificate> certificates ,Collection<X509CRL> crls){
-    	this.certificates = certificates;
+    public TimeStampValidationDataProperty(List<X509Certificate> certs ,Collection<X509CRL> crls){
+    	this.cers = certs;
     	this.crls = crls;
     }
 
@@ -43,9 +43,9 @@ public final class TimeStampValidationDataProperty extends UnsignedSignatureProp
         return PROP_NAME;
     }
     
-    public List<X509Certificate> getCertificates()
+    public List<X509Certificate> getCerts()
     {
-        return certificates;
+        return cers;
     }
     public Collection<X509CRL> getCrls()
     {

@@ -1,15 +1,6 @@
 package xades4j.properties.data;
 
-import java.security.cert.CRLException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509CRL;
-import java.security.cert.X509Certificate;
-import java.util.Collection;
-import java.util.List;
-
-import xades4j.xml.bind.xades.XmlCRLValuesType;
 import xades4j.xml.bind.xades.XmlCertificateValuesType;
-import xades4j.xml.bind.xades.XmlEncapsulatedPKIDataType;
 import xades4j.xml.bind.xades.XmlRevocationValuesType;
 
 public class TimeStampValidationDataData implements PropertyDataObject {
@@ -17,41 +8,9 @@ public class TimeStampValidationDataData implements PropertyDataObject {
 	private XmlCertificateValuesType xmlCertificateValuesType;
 	private XmlRevocationValuesType xmlRevocationValuesType;
 	
-	public TimeStampValidationDataData(Collection<X509Certificate> certValues , Collection<X509CRL> crlValues){
-        XmlCertificateValuesType xmlCertValues = new XmlCertificateValuesType();
-        List xmlCerts = xmlCertValues.getEncapsulatedX509CertificateOrOtherCertificate();
-
-        for (X509Certificate cert : certValues)
-        {
-            XmlEncapsulatedPKIDataType xmlEncodCert = new XmlEncapsulatedPKIDataType();
-            try {
-				xmlEncodCert.setValue(cert.getEncoded());
-			} catch (CertificateEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            xmlCerts.add(xmlEncodCert);
-        }
-
-        this.xmlCertificateValuesType = xmlCertValues;
-        XmlRevocationValuesType xmlRevocValues = new XmlRevocationValuesType();
-        XmlCRLValuesType xmlCRLValues = new XmlCRLValuesType();
-        xmlRevocValues.setCRLValues(xmlCRLValues);
-
-        List xmlCRLs = xmlCRLValues.getEncapsulatedCRLValue();
-
-        for (X509CRL crl : crlValues)
-        {
-            XmlEncapsulatedPKIDataType xmlEncodCert = new XmlEncapsulatedPKIDataType();
-            try {
-				xmlEncodCert.setValue(crl.getEncoded());
-			} catch (CRLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            xmlCRLs.add(xmlEncodCert);
-        }
-        this.xmlRevocationValuesType = xmlRevocValues;
+	public TimeStampValidationDataData(XmlCertificateValuesType xmlCertificateValuesType , XmlRevocationValuesType xmlRevocationValuesType){
+       this.xmlCertificateValuesType = xmlCertificateValuesType;
+       this.xmlRevocationValuesType = xmlRevocationValuesType;
 	}
 	
 	public XmlCertificateValuesType getXmlCertificateValuesType() {
@@ -61,5 +20,4 @@ public class TimeStampValidationDataData implements PropertyDataObject {
 		return xmlRevocationValuesType;
 	}
 
-	
 }

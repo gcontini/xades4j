@@ -16,9 +16,20 @@
  */
 package xades4j.production;
 
+import java.security.cert.CRLException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509CRL;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.List;
+
 import xades4j.properties.TimeStampValidationDataProperty;
 import xades4j.properties.data.PropertyDataObject;
 import xades4j.properties.data.TimeStampValidationDataData;
+import xades4j.xml.bind.xades.XmlCRLValuesType;
+import xades4j.xml.bind.xades.XmlCertificateValuesType;
+import xades4j.xml.bind.xades.XmlEncapsulatedPKIDataType;
+import xades4j.xml.bind.xades.XmlRevocationValuesType;
 
 /**
  *
@@ -30,6 +41,38 @@ class DataGenTimeStampValidationData implements PropertyDataObjectGenerator<Time
     		TimeStampValidationDataProperty prop,
             PropertiesDataGenerationContext ctx) throws PropertyDataGenerationException
     {
-        return new TimeStampValidationDataData(prop.getCertificates(), prop.getCrls());
+    	 List<X509Certificate> certs = prop.getCerts();
+    	 Collection<X509CRL> crls = prop.getCrls();
+    	 XmlCertificateValuesType xmlCertValuesType = new XmlCertificateValuesType();
+         List xmlCerts = xmlCertValuesType.getEncapsulatedX509CertificateOrOtherCertificate();
+
+         for (X509Certificate cert : certs)
+         {
+             XmlEncapsulatedPKIDataType xmlEncodCert = new XmlEncapsulatedPKIDataType();
+             try {
+ 				xmlEncodCert.setValue(cert.getEncoded());
+ 			} catch (CertificateEncodingException e) {
+ 				throw new PropertyDataGenerationException(prop, e.getMessage() ,e);
+ 			}
+             xmlCerts.add(xmlEncodCert);
+         }
+
+         XmlRevocationValuesType xmlRevocValuesType = new XmlRevocationValuesType();
+         XmlCRLValuesType xmlCRLValues = new XmlCRLValuesType();
+         xmlRevocValuesType.setCRLValues(xmlCRLValues);
+
+         List xmlCRLs = xmlCRLValues.getEncapsulatedCRLValue();
+
+         for (X509CRL crl : crls)
+         {
+             XmlEncapsulatedPKIDataType xmlEncodCert = new XmlEncapsulatedPKIDataType();
+             try {
+ 				xmlEncodCert.setValue(crl.getEncoded());
+ 			} catch (CRLException e) {
+ 				throw new PropertyDataGenerationException(prop, e.getMessage() ,e);
+ 			}
+             xmlCRLs.add(xmlEncodCert);
+         }
+        return new TimeStampValidationDataData(xmlCertValuesType ,xmlRevocValuesType);
     }
 }
