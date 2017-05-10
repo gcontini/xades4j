@@ -22,7 +22,6 @@ import java.security.Provider;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -60,142 +59,120 @@ import xades4j.providers.ValidationData;
  * Default implementation of {@code TimeStampVerificationProvider}. It verifies
  * the token signature, including the TSA certificate, and the digest imprint.
  * <p>
- * The implementation is based on Bouncy Castle and <b>only supports DER-encoded tokens</b>.
+ * The implementation is based on Bouncy Castle and <b>only supports DER-encoded
+ * tokens</b>.
+ * 
  * @author Luís
  */
-public class DefaultTimeStampVerificationProvider implements TimeStampVerificationProvider
-{
+public class DefaultTimeStampVerificationProvider implements TimeStampVerificationProvider {
 
-    private static final Map<ASN1ObjectIdentifier, String> digestOidToUriMappings;
+	private static final Map<ASN1ObjectIdentifier, String> digestOidToUriMappings;
 
-    static
-    {
-        digestOidToUriMappings = new HashMap<ASN1ObjectIdentifier, String>(5);
-        digestOidToUriMappings.put(TSPAlgorithms.MD5, MessageDigestAlgorithm.ALGO_ID_DIGEST_NOT_RECOMMENDED_MD5);
-        digestOidToUriMappings.put(TSPAlgorithms.RIPEMD160, MessageDigestAlgorithm.ALGO_ID_DIGEST_RIPEMD160);
-        digestOidToUriMappings.put(TSPAlgorithms.SHA1, MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA1);
-        digestOidToUriMappings.put(TSPAlgorithms.SHA256, MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA256);
-        digestOidToUriMappings.put(TSPAlgorithms.SHA384, MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA384);
-        digestOidToUriMappings.put(TSPAlgorithms.SHA512, MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA512);
-    }
+	static {
+		digestOidToUriMappings = new HashMap<ASN1ObjectIdentifier, String>(5);
+		digestOidToUriMappings.put(TSPAlgorithms.MD5, MessageDigestAlgorithm.ALGO_ID_DIGEST_NOT_RECOMMENDED_MD5);
+		digestOidToUriMappings.put(TSPAlgorithms.RIPEMD160, MessageDigestAlgorithm.ALGO_ID_DIGEST_RIPEMD160);
+		digestOidToUriMappings.put(TSPAlgorithms.SHA1, MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA1);
+		digestOidToUriMappings.put(TSPAlgorithms.SHA256, MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA256);
+		digestOidToUriMappings.put(TSPAlgorithms.SHA384, MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA384);
+		digestOidToUriMappings.put(TSPAlgorithms.SHA512, MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA512);
+	}
 
-    // TODO this probably should be a provider to avoid being dependent on a fixed set of algorithms
-    private static String uriForDigest(ASN1ObjectIdentifier digestalgOid)
-    {
-        return digestOidToUriMappings.get(digestalgOid);
-    }
-    private final CertificateValidationProvider certificateValidationProvider;
-    private final MessageDigestEngineProvider messageDigestProvider;
-    private final JcaSimpleSignerInfoVerifierBuilder signerInfoVerifierBuilder;
-    private final JcaX509CertificateConverter x509CertificateConverter;
-    private final JcaX509CertSelectorConverter x509CertSelectorConverter;
+	// TODO this probably should be a provider to avoid being dependent on a
+	// fixed set of algorithms
+	private static String uriForDigest(ASN1ObjectIdentifier digestalgOid) {
+		return digestOidToUriMappings.get(digestalgOid);
+	}
 
-    @Inject
-    public DefaultTimeStampVerificationProvider(
-            CertificateValidationProvider certificateValidationProvider,
-            MessageDigestEngineProvider messageDigestProvider)
-    {
-        this.certificateValidationProvider = certificateValidationProvider;
-        this.messageDigestProvider = messageDigestProvider;
+	private final CertificateValidationProvider certificateValidationProvider;
+	private final MessageDigestEngineProvider messageDigestProvider;
+	private final JcaSimpleSignerInfoVerifierBuilder signerInfoVerifierBuilder;
+	private final JcaX509CertificateConverter x509CertificateConverter;
+	private final JcaX509CertSelectorConverter x509CertSelectorConverter;
 
-        Provider bcProv = new BouncyCastleProvider();
-        this.signerInfoVerifierBuilder = new JcaSimpleSignerInfoVerifierBuilder().setProvider(bcProv);
-        this.x509CertificateConverter = new JcaX509CertificateConverter().setProvider(bcProv);
-        this.x509CertSelectorConverter = new JcaX509CertSelectorConverter();
-    }
+	@Inject
+	public DefaultTimeStampVerificationProvider(CertificateValidationProvider certificateValidationProvider,
+			MessageDigestEngineProvider messageDigestProvider) {
+		this.certificateValidationProvider = certificateValidationProvider;
+		this.messageDigestProvider = messageDigestProvider;
 
-    @Override
-    public Date verifyToken(byte[] timeStampToken, byte[] tsDigestInput)
-                            throws TimeStampTokenVerificationException
-    {
-        TimeStampToken tsToken;
-        try
-        {
-            ASN1InputStream asn1is = new ASN1InputStream(timeStampToken);
-            ContentInfo tsContentInfo = ContentInfo.getInstance(asn1is.readObject());
-            asn1is.close();
-            tsToken = new TimeStampToken(tsContentInfo);
-        } catch (IOException ex)
-        {
-            throw new TimeStampTokenStructureException("Error parsing encoded token", ex);
-        } catch (TSPException ex)
-        {
-            throw new TimeStampTokenStructureException("Invalid token", ex);
-        }
+		Provider bcProv = new BouncyCastleProvider();
+		this.signerInfoVerifierBuilder = new JcaSimpleSignerInfoVerifierBuilder().setProvider(bcProv);
+		this.x509CertificateConverter = new JcaX509CertificateConverter().setProvider(bcProv);
+		this.x509CertSelectorConverter = new JcaX509CertSelectorConverter();
+	}
 
-        X509Certificate tsaCert = null;
-        try
-        {
-            /* Validate the TSA certificate */
-            LinkedList<X509Certificate> certs = new LinkedList<X509Certificate>();
-            for (Object certHolder : tsToken.getCertificates().getMatches(new AllCertificatesSelector()))
-            {
-                certs.add(this.x509CertificateConverter.getCertificate((X509CertificateHolder) certHolder));
-            }
+	@Override
+	public TimeStampValidationResult verifyToken(byte[] timeStampToken, byte[] tsDigestInput)
+			throws TimeStampTokenVerificationException {
+		TimeStampToken tsToken;
+		try {
+			ASN1InputStream asn1is = new ASN1InputStream(timeStampToken);
+			ContentInfo tsContentInfo = ContentInfo.getInstance(asn1is.readObject());
+			asn1is.close();
+			tsToken = new TimeStampToken(tsContentInfo);
+		} catch (IOException ex) {
+			throw new TimeStampTokenStructureException("Error parsing encoded token", ex);
+		} catch (TSPException ex) {
+			throw new TimeStampTokenStructureException("Invalid token", ex);
+		}
 
-            ValidationData vData = this.certificateValidationProvider.validate(
-                    x509CertSelectorConverter.getCertSelector(tsToken.getSID()),
-                    tsToken.getTimeStampInfo().getGenTime(),
-                    certs);
+		X509Certificate tsaCert = null;
+		ValidationData vData = null;
+		try {
+			/* Validate the TSA certificate */
+			LinkedList<X509Certificate> certs = new LinkedList<X509Certificate>();
+			for (Object certHolder : tsToken.getCertificates().getMatches(new AllCertificatesSelector())) {
+				certs.add(this.x509CertificateConverter.getCertificate((X509CertificateHolder) certHolder));
+			}
 
-            tsaCert = vData.getCerts().get(0);
-        }
-        catch (CertificateException ex)
-        {
-            throw new TimeStampTokenVerificationException(ex.getMessage(), ex);
-        }
-        catch (XAdES4jException ex)
-        {
-            throw new TimeStampTokenTSACertException("cannot validate TSA certificate", ex);
-        }
+			vData = this.certificateValidationProvider.validate(
+					x509CertSelectorConverter.getCertSelector(tsToken.getSID()),
+					tsToken.getTimeStampInfo().getGenTime(), certs);
 
-        try
-        {
-            tsToken.validate(this.signerInfoVerifierBuilder.build(tsaCert));
-        }
-        catch (TSPValidationException ex)
-        {
-            throw new TimeStampTokenSignatureException("Invalid token signature or certificate", ex);
-        }
-        catch (Exception ex)
-        {
-            throw new TimeStampTokenVerificationException("Error when verifying the token signature", ex);
-        }
+			tsaCert = vData.getCerts().get(0);
+		} catch (CertificateException ex) {
+			throw new TimeStampTokenVerificationException(ex.getMessage(), ex);
+		} catch (XAdES4jException ex) {
+			throw new TimeStampTokenTSACertException("cannot validate TSA certificate", ex);
+		}
 
-        org.bouncycastle.tsp.TimeStampTokenInfo tsTokenInfo = tsToken.getTimeStampInfo();
+		try {
+			tsToken.validate(this.signerInfoVerifierBuilder.build(tsaCert));
+		} catch (TSPValidationException ex) {
+			throw new TimeStampTokenSignatureException("Invalid token signature or certificate", ex);
+		} catch (Exception ex) {
+			throw new TimeStampTokenVerificationException("Error when verifying the token signature", ex);
+		}
 
-        try
-        {
-            String digestAlgUri = uriForDigest(tsTokenInfo.getMessageImprintAlgOID());
-            MessageDigest md = messageDigestProvider.getEngine(digestAlgUri);
+		org.bouncycastle.tsp.TimeStampTokenInfo tsTokenInfo = tsToken.getTimeStampInfo();
 
-            if (!Arrays.equals(md.digest(tsDigestInput), tsTokenInfo.getMessageImprintDigest()))
-            {
-                throw new TimeStampTokenDigestException();
-            }
-        }
-        catch (UnsupportedAlgorithmException ex)
-        {
-            throw new TimeStampTokenVerificationException("The token's digest algorithm is not supported", ex);
-        }
+		try {
+			String digestAlgUri = uriForDigest(tsTokenInfo.getMessageImprintAlgOID());
+			MessageDigest md = messageDigestProvider.getEngine(digestAlgUri);
 
-        return tsTokenInfo.getGenTime();
-    }
-    
-    /** Selector selecting all certificates. */
-    private static class AllCertificatesSelector implements Selector {
+			if (!Arrays.equals(md.digest(tsDigestInput), tsTokenInfo.getMessageImprintDigest())) {
+				throw new TimeStampTokenDigestException();
+			}
+		} catch (UnsupportedAlgorithmException ex) {
+			throw new TimeStampTokenVerificationException("The token's digest algorithm is not supported", ex);
+		}
 
-        @Override
-        public boolean match(Object o)
-        {
-            return true;
-}
+		return new TimeStampValidationResult(tsTokenInfo.getGenTime(), vData);
+	}
 
-        @Override
-        public Object clone()
-        {
-            return this;
-        }        
-        
-    }
+	/** Selector selecting all certificates. */
+	private static class AllCertificatesSelector implements Selector {
+
+		@Override
+		public boolean match(Object o) {
+			return true;
+		}
+
+		@Override
+		public Object clone() {
+			return this;
+		}
+
+	}
 }

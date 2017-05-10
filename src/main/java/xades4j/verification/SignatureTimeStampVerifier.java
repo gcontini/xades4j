@@ -16,42 +16,38 @@
  */
 package xades4j.verification;
 
-import com.google.inject.Inject;
 import org.apache.xml.security.utils.Constants;
 import org.w3c.dom.Element;
-import xades4j.utils.CannotAddDataToDigestInputException;
-import xades4j.properties.QualifyingProperty;
+
+import com.google.inject.Inject;
+
 import xades4j.properties.SignatureTimeStampProperty;
-import xades4j.utils.TimeStampDigestInput;
 import xades4j.properties.data.SignatureTimeStampData;
 import xades4j.providers.TimeStampVerificationProvider;
+import xades4j.utils.CannotAddDataToDigestInputException;
 import xades4j.utils.DOMHelper;
+import xades4j.utils.TimeStampDigestInput;
 import xades4j.utils.TimeStampDigestInputFactory;
 
 /**
  * XAdES section G.2.2.16.1.3
+ * 
  * @author Luís
  */
-class SignatureTimeStampVerifier extends TimeStampVerifierBase<SignatureTimeStampData>
-{
-    @Inject
-    public SignatureTimeStampVerifier(
-            TimeStampVerificationProvider timeStampVerifier,
-            TimeStampDigestInputFactory timeStampDigestInputFactory)
-    {
-        super(timeStampVerifier, timeStampDigestInputFactory, SignatureTimeStampProperty.PROP_NAME);
-    }
+class SignatureTimeStampVerifier extends TimeStampVerifierBase<SignatureTimeStampData> {
+	@Inject
+	public SignatureTimeStampVerifier(TimeStampVerificationProvider timeStampVerifier,
+			TimeStampDigestInputFactory timeStampDigestInputFactory) {
+		super(timeStampVerifier, timeStampDigestInputFactory, SignatureTimeStampProperty.PROP_NAME);
+	}
 
-    @Override
-    protected QualifyingProperty addPropSpecificTimeStampInputAndCreateProperty(
-            SignatureTimeStampData propData,
-            TimeStampDigestInput digestInput,
-            QualifyingPropertyVerificationContext ctx) throws CannotAddDataToDigestInputException
-    {
-        Element sigValueElem = DOMHelper.getFirstDescendant(
-            ctx.getSignature().getElement(),
-            Constants.SignatureSpecNS, Constants._TAG_SIGNATUREVALUE);
-        digestInput.addNode(sigValueElem);
-        return new SignatureTimeStampProperty();
-    }
+	@Override
+	protected TimeStampProperty addPropSpecificTimeStampInputAndCreateProperty(SignatureTimeStampData propData,
+			TimeStampDigestInput digestInput, QualifyingPropertyVerificationContext ctx)
+			throws CannotAddDataToDigestInputException {
+		Element sigValueElem = DOMHelper.getFirstDescendant(ctx.getSignature().getElement(), Constants.SignatureSpecNS,
+				Constants._TAG_SIGNATUREVALUE);
+		digestInput.addNode(sigValueElem);
+		return new SignatureTimeStampProperty();
+	}
 }

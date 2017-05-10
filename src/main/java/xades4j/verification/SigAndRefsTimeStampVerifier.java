@@ -24,7 +24,6 @@ import com.google.inject.Inject;
 
 import xades4j.properties.CompleteCertificateRefsProperty;
 import xades4j.properties.CompleteRevocationRefsProperty;
-import xades4j.properties.QualifyingProperty;
 import xades4j.properties.SigAndRefsTimeStampProperty;
 import xades4j.properties.SignatureTimeStampProperty;
 import xades4j.properties.data.SigAndRefsTimeStampData;
@@ -35,96 +34,77 @@ import xades4j.utils.TimeStampDigestInput;
 import xades4j.utils.TimeStampDigestInputFactory;
 
 /**
- * Verifier for the XAdES-X time stamp property - SigAndRefsTimeStamp
- * XAdES v1.4.2 G.2.2.16.2.3
+ * Verifier for the XAdES-X time stamp property - SigAndRefsTimeStamp XAdES
+ * v1.4.2 G.2.2.16.2.3
  *
  * @author Hubert Kario
  */
-public class SigAndRefsTimeStampVerifier extends
-        TimeStampVerifierBase<SigAndRefsTimeStampData>
-{
-    @Inject
-    public SigAndRefsTimeStampVerifier(
-            TimeStampVerificationProvider timeStampVerifier,
-            TimeStampDigestInputFactory timeStampDigestInputFactory)
-    {
-        super(timeStampVerifier, timeStampDigestInputFactory,
-                SigAndRefsTimeStampProperty.PROP_NAME);
-    }
+public class SigAndRefsTimeStampVerifier extends TimeStampVerifierBase<SigAndRefsTimeStampData> {
+	@Inject
+	public SigAndRefsTimeStampVerifier(TimeStampVerificationProvider timeStampVerifier,
+			TimeStampDigestInputFactory timeStampDigestInputFactory) {
+		super(timeStampVerifier, timeStampDigestInputFactory, SigAndRefsTimeStampProperty.PROP_NAME);
+	}
 
-    @Override
-    protected QualifyingProperty addPropSpecificTimeStampInputAndCreateProperty(
-            SigAndRefsTimeStampData propData, TimeStampDigestInput digestInput,
-            QualifyingPropertyVerificationContext ctx)
-            throws CannotAddDataToDigestInputException,
-            TimeStampVerificationException
-    {
-        /*
-         * "Take each one of the signed properties and not property elements in the
-         * signature that the normative part dictates that must be time-stamped, in the
-         * order specified in the normative clause defining the time-stamp token
-         * container type. Canonicalize them and concatenate the resulting bytes in one
-         * octet stream. If the CanonicalizationMethod element of the property is
-         * present, use it for canonicalizing. Otherwise, use the standard
-         * canonicalization method as specified by XMLDSIG."
-         */
+	@Override
+	protected TimeStampProperty addPropSpecificTimeStampInputAndCreateProperty(SigAndRefsTimeStampData propData,
+			TimeStampDigestInput digestInput, QualifyingPropertyVerificationContext ctx)
+			throws CannotAddDataToDigestInputException, TimeStampVerificationException {
+		/*
+		 * "Take each one of the signed properties and not property elements in
+		 * the signature that the normative part dictates that must be
+		 * time-stamped, in the order specified in the normative clause defining
+		 * the time-stamp token container type. Canonicalize them and
+		 * concatenate the resulting bytes in one octet stream. If the
+		 * CanonicalizationMethod element of the property is present, use it for
+		 * canonicalizing. Otherwise, use the standard canonicalization method
+		 * as specified by XMLDSIG."
+		 */
 
-        // TimeStamp is taken over SignatureValue element
-        Element sigValueElem = DOMHelper.getFirstDescendant(
-                ctx.getSignature().getElement(),
-                Constants.SignatureSpecNS,
-                Constants._TAG_SIGNATUREVALUE);
-        digestInput.addNode(sigValueElem);
+		// TimeStamp is taken over SignatureValue element
+		Element sigValueElem = DOMHelper.getFirstDescendant(ctx.getSignature().getElement(), Constants.SignatureSpecNS,
+				Constants._TAG_SIGNATUREVALUE);
+		digestInput.addNode(sigValueElem);
 
-        // next elements that should have been timestamped are all SignatureTimeStamps
-        // there may be no SignatureTimeStamps
-        // TODO write test for document with SigAndRefsTimeStamp but no SignatureTimeStamp
-        NodeList signatureTimeStamps = ctx.getSignature().getElement().getElementsByTagNameNS(
-                SignatureTimeStampProperty.XADES_XMLNS,
-                SignatureTimeStampProperty.PROP_NAME);
-        for (int i=0; i < signatureTimeStamps.getLength(); i++)
-        {
-            Element timeStampElem = (Element) signatureTimeStamps.item(i);
-            digestInput.addNode(timeStampElem);
-        }
+		// next elements that should have been timestamped are all
+		// SignatureTimeStamps
+		// there may be no SignatureTimeStamps
+		// TODO write test for document with SigAndRefsTimeStamp but no
+		// SignatureTimeStamp
+		NodeList signatureTimeStamps = ctx.getSignature().getElement()
+				.getElementsByTagNameNS(SignatureTimeStampProperty.XADES_XMLNS, SignatureTimeStampProperty.PROP_NAME);
+		for (int i = 0; i < signatureTimeStamps.getLength(); i++) {
+			Element timeStampElem = (Element) signatureTimeStamps.item(i);
+			digestInput.addNode(timeStampElem);
+		}
 
-        // then CompleteCertificateRefs
-        Element completeCertificateRefsElem = DOMHelper.getFirstDescendant(
-                ctx.getSignature().getElement(),
-                CompleteCertificateRefsProperty.XADES_XMLNS,
-                CompleteCertificateRefsProperty.PROP_NAME);
-        digestInput.addNode(completeCertificateRefsElem);
+		// then CompleteCertificateRefs
+		Element completeCertificateRefsElem = DOMHelper.getFirstDescendant(ctx.getSignature().getElement(),
+				CompleteCertificateRefsProperty.XADES_XMLNS, CompleteCertificateRefsProperty.PROP_NAME);
+		digestInput.addNode(completeCertificateRefsElem);
 
-        // ...and CompleteRevocationRefs
-        Element completeRevocationRefsElem = DOMHelper.getFirstDescendant(
-                ctx.getSignature().getElement(),
-                CompleteRevocationRefsProperty.XADES_XMLNS,
-                CompleteRevocationRefsProperty.PROP_NAME);
-        digestInput.addNode(completeRevocationRefsElem);
+		// ...and CompleteRevocationRefs
+		Element completeRevocationRefsElem = DOMHelper.getFirstDescendant(ctx.getSignature().getElement(),
+				CompleteRevocationRefsProperty.XADES_XMLNS, CompleteRevocationRefsProperty.PROP_NAME);
+		digestInput.addNode(completeRevocationRefsElem);
 
-        // AttributeCertificateRefs are optional
-        // TODO implement missing classes
-        Element attributeCertificateRefs = DOMHelper.getFirstDescendant(
-                ctx.getSignature().getElement(),
-                CompleteRevocationRefsProperty.XADES_XMLNS,
-                "AttributeCertificateRefs");
-        if (attributeCertificateRefs != null)
-            throw new CannotAddDataToDigestInputException(
-                    new Exception("Can't verify SigAndRefsTimeStamp: " +
-            "AttributeCertificateRefs is unsupported"));
+		// AttributeCertificateRefs are optional
+		// TODO implement missing classes
+		Element attributeCertificateRefs = DOMHelper.getFirstDescendant(ctx.getSignature().getElement(),
+				CompleteRevocationRefsProperty.XADES_XMLNS, "AttributeCertificateRefs");
+		if (attributeCertificateRefs != null)
+			throw new CannotAddDataToDigestInputException(
+					new Exception("Can't verify SigAndRefsTimeStamp: " + "AttributeCertificateRefs is unsupported"));
 
-        // AttributeRevocationRefs are optional
-        // TODO implement missing classes
-        Element attributeRevocationRefs = DOMHelper.getFirstDescendant(
-                ctx.getSignature().getElement(),
-                CompleteRevocationRefsProperty.XADES_XMLNS,
-                "AttributeRevocationRefs");
-        if (attributeRevocationRefs != null)
-            throw new CannotAddDataToDigestInputException(
-                    new Exception("Can't verify SigAndRefsTimeStamp: " +
-            "AttributeRevocationRefs is unsupported"));
+		// AttributeRevocationRefs are optional
+		// TODO implement missing classes
+		Element attributeRevocationRefs = DOMHelper.getFirstDescendant(ctx.getSignature().getElement(),
+				CompleteRevocationRefsProperty.XADES_XMLNS, "AttributeRevocationRefs");
+		if (attributeRevocationRefs != null)
+			throw new CannotAddDataToDigestInputException(
+					new Exception("Can't verify SigAndRefsTimeStamp: " + "AttributeRevocationRefs is unsupported"));
 
-        return new SigAndRefsTimeStampProperty();
-    }
+		return new SigAndRefsTimeStampProperty();
+	}
 
 }

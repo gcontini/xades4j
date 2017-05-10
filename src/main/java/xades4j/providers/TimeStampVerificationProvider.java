@@ -19,21 +19,45 @@ package xades4j.providers;
 import java.util.Date;
 
 /**
- * Provides verification of time-stamp tokens. This is used whenever a time-stamp
- * property needs to be verified.
+ * Provides verification of time-stamp tokens. This is used whenever a
+ * time-stamp property needs to be verified.
+ * 
  * @author Luís
  */
-public interface TimeStampVerificationProvider
-{
-    /**
-     * Verifies a time-stamp token. This includes verifying the digest value and
-     * the token signature, including the TSA certificate.
-     * @param timeStampToken the encoded time-stamp token
-     * @param tsDigestInput the input purportedly used in time-stamp creation, calculated from the current signature
-     * @return the time-stamp
-     * @throws TimeStampTokenVerificationException if the token cannot be validated (see subclasses of the exception)
-     */
-    public Date verifyToken(
-            byte[] timeStampToken,
-            byte[] tsDigestInput) throws TimeStampTokenVerificationException;
+public interface TimeStampVerificationProvider {
+	/**
+	 * Verifies a time-stamp token. This includes verifying the digest value and
+	 * the token signature, including the TSA certificate.
+	 * 
+	 * @param timeStampToken
+	 *            the encoded time-stamp token
+	 * @param tsDigestInput
+	 *            the input purportedly used in time-stamp creation, calculated
+	 *            from the current signature
+	 * @return the time-stamp
+	 * @throws TimeStampTokenVerificationException
+	 *             if the token cannot be validated (see subclasses of the
+	 *             exception)
+	 */
+	public TimeStampValidationResult verifyToken(byte[] timeStampToken, byte[] tsDigestInput)
+			throws TimeStampTokenVerificationException;
+
+	public class TimeStampValidationResult {
+		private Date date;
+		private ValidationData validationData;
+
+		public TimeStampValidationResult(Date date, ValidationData validationData) {
+			this.date = date;
+			this.validationData = validationData;
+		}
+
+		public Date getDate() {
+			return date;
+		}
+
+		public ValidationData getValidationData() {
+			return validationData;
+		}
+
+	}
 }

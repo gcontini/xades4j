@@ -18,39 +18,49 @@ package xades4j.properties;
 
 import java.util.Date;
 
+import xades4j.providers.ValidationData;
+import xades4j.verification.TimeStampProperty;
+
 /**
  * The {@code SigAndRefsTimeStamp} element is an unsigned property qualifying
  * the signature.
  * <p>
  * This property contains a time-stamp token that covers the following data
- * objects: {@code ds:SignatureValue} element, all present {@code SignatureTimeStamp}
- * elements, {@code CompleteCertificateRefs}, {@code CompleteRevocationRefs}, and
- * when present, {@code AttributeCertificateRefs} and {@code AttributeRevocationRefs}.
+ * objects: {@code ds:SignatureValue} element, all present
+ * {@code SignatureTimeStamp} elements, {@code CompleteCertificateRefs},
+ * {@code CompleteRevocationRefs}, and when present,
+ * {@code AttributeCertificateRefs} and {@code AttributeRevocationRefs}.
+ * 
  * @author Luís
  */
-public final class SigAndRefsTimeStampProperty extends UnsignedSignatureProperty
-{
-    public static final String PROP_NAME = "SigAndRefsTimeStamp";
-    /**/
-    private Date time;
+public final class SigAndRefsTimeStampProperty extends UnsignedSignatureProperty implements TimeStampProperty {
+	public static final String PROP_NAME = "SigAndRefsTimeStamp";
 
-    /**
-     * Gets the time-stamp time.
-     * @return the time or {@code null} if the property hasn't been processed in signature production or verification
-     */
-    public Date getTime()
-    {
-        return time;
-    }
+	private Date time;
+	private ValidationData validationData;
 
-    public void setTime(Date time)
-    {
-        this.time = time;
-    }
+	@Override
+	public Date getTime() {
+		return time;
+	}
 
-    @Override
-    public String getName()
-    {
-        return PROP_NAME;
-    }
+	@Override
+	public void setTime(Date time) {
+		this.time = time;
+	}
+
+	@Override
+	public ValidationData getValidationData() {
+		return validationData;
+	}
+
+	@Override
+	public void setValidationData(ValidationData validationData) {
+		this.validationData = validationData;
+	}
+
+	@Override
+	public String getName() {
+		return PROP_NAME;
+	}
 }

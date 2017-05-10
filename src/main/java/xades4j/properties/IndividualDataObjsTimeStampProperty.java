@@ -18,51 +18,68 @@ package xades4j.properties;
 
 import java.util.Date;
 
+import xades4j.providers.ValidationData;
+import xades4j.verification.TimeStampProperty;
+
 /**
- * Represents a time-stamp computed before the signature production, over a sequence
- * formed by some of the {@code ds:Reference} elements within the {@code ds:SignedInfo}
- * referencing whatever the signer wants to sign except the SignedProperties element.
+ * Represents a time-stamp computed before the signature production, over a
+ * sequence formed by some of the {@code ds:Reference} elements within the
+ * {@code ds:SignedInfo} referencing whatever the signer wants to sign except
+ * the SignedProperties element.
  * <p>
- * The {@code IndividualDataObjectsTimeStamp} element is a signed property. Several
- * instances of this property from different TSAs can occur within the same XAdES.
+ * The {@code IndividualDataObjectsTimeStamp} element is a signed property.
+ * Several instances of this property from different TSAs can occur within the
+ * same XAdES.
  *
  * @see AllDataObjsTimeStampProperty
  *
  * @author Luís
  */
-public final class IndividualDataObjsTimeStampProperty extends SignedDataObjectProperty
-{
-    public static final String PROP_NAME = "IndividualDataObjectsTimeStamp";
-    /**/
-    private Date time;
+public final class IndividualDataObjsTimeStampProperty extends SignedDataObjectProperty implements TimeStampProperty {
+	public static final String PROP_NAME = "IndividualDataObjectsTimeStamp";
+	/**/
+	private Date time;
+	private ValidationData validationData;
 
-    public IndividualDataObjsTimeStampProperty()
-    {
-        super(TargetMultiplicity.N);
-    }
+	public IndividualDataObjsTimeStampProperty() {
+		super(TargetMultiplicity.N);
+	}
 
-    @Override
-    public String getName()
-    {
-        return PROP_NAME;
-    }
+	@Override
+	public String getName() {
+		return PROP_NAME;
+	}
 
-    /**
-     * Gets the time-stamp time after signature production or verification.
-     * @return the time or {@code null} if the property wasn't part of a signature production
-     */
-    public Date getTime()
-    {
-        return time;
-    }
+	/**
+	 * Gets the time-stamp time after signature production or verification.
+	 * 
+	 * @return the time or {@code null} if the property wasn't part of a
+	 *         signature production
+	 */
+	@Override
+	public Date getTime() {
+		return time;
+	}
 
-    /**
-     * Sets the time-stamp time. This is set during signature production so that
-     * the time-stamp can be accessed afterwards.
-     * @param time the time
-     */
-    public void setTime(Date time)
-    {
-        this.time = time;
-    }
+	/**
+	 * Sets the time-stamp time. This is set during signature production so that
+	 * the time-stamp can be accessed afterwards.
+	 * 
+	 * @param time
+	 *            the time
+	 */
+	@Override
+	public void setTime(Date time) {
+		this.time = time;
+	}
+
+	@Override
+	public ValidationData getValidationData() {
+		return validationData;
+	}
+
+	@Override
+	public void setValidationData(ValidationData validationData) {
+		this.validationData = validationData;
+	}
 }
