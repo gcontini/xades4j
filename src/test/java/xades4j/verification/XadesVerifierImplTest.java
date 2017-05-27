@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assume.assumeTrue;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -70,7 +71,7 @@ public class XadesVerifierImplTest extends VerifierTestBase {
 		String sigFilename = "document.signed.bes.xml";
 		Element signatureNode = getSigElement(getDocument(sigFilename));
 		XadesVerificationProfile p = new XadesVerificationProfile(VerifierTestBase.validationProviderMySigs);
-		Date verificationDate = new SimpleDateFormat("YYYY").parse("2041");
+		Date verificationDate = new SimpleDateFormat("yyyy").parse("2041");
 		p.newVerifier().verify(signatureNode,
 				new SignatureSpecificVerificationOptions().setDefaultVerificationDate(verificationDate));
 
@@ -94,7 +95,8 @@ public class XadesVerifierImplTest extends VerifierTestBase {
 	@Test
 	public void testVerifyDetachedBES() throws Exception {
 		System.out.println("verifyDetachedBES");
-		XAdESForm f = verifySignature("detached.bes.xml");
+		XAdESForm f = verifySignature("detached.bes.xml",
+				new SignatureSpecificVerificationOptions().useBaseUri(new File("src/test/xml/").toURI().toString()));
 		assertEquals(XAdESForm.BES, f);
 	}
 

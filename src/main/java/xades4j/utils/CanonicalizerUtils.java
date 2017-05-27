@@ -7,16 +7,18 @@ import xades4j.algorithms.Algorithm;
 
 /**
  * Provides some utility methods for Canonicalization.
+ *
  * @author Emmanuelle
  */
-public class CanonicalizerUtils
+public final class CanonicalizerUtils
 {
-
     /**
-     * Verifies input C14N Algorithm is in fact a C14N Algorithm by querying the default Apache Canonicalizer.
+     * Verifies input C14N Algorithm is in fact a C14N Algorithm by querying the
+     * default Apache Canonicalizer.
      *
      * @param c14n - A C14N algorithm.
-     * @throws UnsupportedAlgorithmException - If the URI is not registered in the default Canonicalizer.
+     * @throws UnsupportedAlgorithmException - If the URI is not registered in
+     * the default Canonicalizer.
      */
     public static void checkC14NAlgorithm(Algorithm c14n) throws UnsupportedAlgorithmException
     {
@@ -25,8 +27,7 @@ public class CanonicalizerUtils
         try
         {
             Canonicalizer.getInstance(c14n.getUri());
-        }
-        catch (InvalidCanonicalizerException ex)
+        } catch (InvalidCanonicalizerException ex)
         {
             throw new UnsupportedAlgorithmException("Unsupported canonicalization method", c14n.getUri(), ex);
         }
