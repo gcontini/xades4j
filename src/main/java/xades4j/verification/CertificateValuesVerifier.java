@@ -2,6 +2,7 @@ package xades4j.verification;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -24,7 +25,10 @@ public class CertificateValuesVerifier implements QualifyingPropertyVerifier<Cer
         CertificateFactory certFactory;
         try
         {
-            certFactory = CertificateFactory.getInstance("X509");
+            certFactory = CertificateFactory.getInstance("X509", "BC");
+        } catch (NoSuchProviderException ex)
+        {
+            throw new IllegalStateException("BC provider not registered", ex);
         } catch (CertificateException ex)
         {
             throw new CertificateValuesVerificationException(ex);
