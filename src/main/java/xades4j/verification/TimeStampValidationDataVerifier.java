@@ -1,6 +1,7 @@
 package xades4j.verification;
 
 import java.io.ByteArrayInputStream;
+import java.security.NoSuchProviderException;
 import java.security.cert.CRL;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
@@ -9,7 +10,6 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
-
 import xades4j.properties.QualifyingProperty;
 import xades4j.properties.TimeStampValidationDataProperty;
 import xades4j.properties.data.TimeStampValidationDataData;
@@ -35,8 +35,12 @@ public class TimeStampValidationDataVerifier implements  QualifyingPropertyVerif
 		List<XmlEncapsulatedPKIDataType> encapsulatedCRLValue = crlValues.getEncapsulatedCRLValue();
 		CertificateFactory instance;
 		try {
-			instance = CertificateFactory.getInstance("X509");
-		} catch (CertificateException e) {
+			instance = CertificateFactory.getInstance("X509", "BC");
+		} catch (NoSuchProviderException ex)
+		{
+			throw new IllegalStateException("BC provider not registered", ex);
+		} catch (CertificateException e)
+		{
 			throw new RevocationValuesVerificationException(e);
 		}
 		List<X509CRL> crls = new ArrayList<X509CRL>();

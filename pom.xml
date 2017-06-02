@@ -64,12 +64,12 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.56</version>
+            <version>1.50</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.56</version>
+            <version>1.50</version>
         </dependency>
     </dependencies>
 	
@@ -81,7 +81,7 @@
     </distributionManagement>
 
     <build>
-        <plugins>
+        <!-- plugins>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -93,7 +93,7 @@
                     <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
             </plugin>
-        </plugins>
+        </plugins -->
     </build>
 
     <profiles>
