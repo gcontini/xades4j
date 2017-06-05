@@ -54,7 +54,6 @@ class CounterSignatureVerifier implements QualifyingPropertyVerifier<GenericDOMD
 			Element sigElem = DOMHelper.getFirstChildElement(propData.getPropertyElement());
 			res = verifier.verify(sigElem, null);
 		} catch (XAdES4jException ex) {
-			System.out.println(111111);
 			throw new CounterSignatureXadesVerificationException(ex);
 		}
 
