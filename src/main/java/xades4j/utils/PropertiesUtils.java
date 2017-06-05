@@ -80,11 +80,11 @@ public class PropertiesUtils
 
     public static void addXadesXLProperties(
             Collection<UnsignedSignatureProperty> usp,
-            ValidationData vData)
+            ValidationData vData ,ValidationData tvData)
     {
         usp.add(new CertificateValuesProperty(vData.getCerts()));
         usp.add(new RevocationValuesProperty(vData.getCrls()));
-        usp.add(new TimeStampValidationDataProperty(vData.getTimestampCerts(),vData.getTimestampCrls()));
+        usp.add(new TimeStampValidationDataProperty(tvData.getCerts(),tvData.getCrls()));
     }
 
     public static void addXadesAProperties(

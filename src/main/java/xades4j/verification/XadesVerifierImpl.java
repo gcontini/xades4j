@@ -21,7 +21,6 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -165,8 +164,8 @@ class XadesVerifierImpl implements XadesVerifier {
 		/* Certification path */
 
 		KeyInfoRes keyInfoRes = SignatureUtils.processKeyInfo(signature.getKeyInfo());
-		Date validationDate = getValidationDate(qualifPropsData, signature, verificationOptions);
-		ValidationData certValidationRes = this.certificateValidator.validate(keyInfoRes.certSelector, validationDate,
+		 SignatureTimeStampProperty signatureTimeStampProperty = getValidationDate(qualifPropsData, signature, verificationOptions);
+		ValidationData certValidationRes = this.certificateValidator.validate(keyInfoRes.certSelector, signatureTimeStampProperty.getTime(),
 				keyInfoRes.keyInfoCerts);
 		if (null == certValidationRes || certValidationRes.getCerts().isEmpty()) {
 			throw new NullPointerException("Certificate validator returned null or empty data");
@@ -190,7 +189,7 @@ class XadesVerifierImpl implements XadesVerifier {
 		Collection<PropertyInfo> props = this.qualifyingPropertiesVerifier.verifyProperties(qualifPropsData, qPropsCtx);
 
 		XAdESVerificationResult res = new XAdESVerificationResult(XAdESFormChecker.checkForm(props), signature,
-				certValidationRes, props, referencesRes.dataObjsReferences);
+				certValidationRes, props, referencesRes.dataObjsReferences,signatureTimeStampProperty.getValidationData());
 
 		// Apply the custom signature verifiers.
 		for (CustomSignatureVerifier customVer : this.customSigVerifiers) {
@@ -202,13 +201,16 @@ class XadesVerifierImpl implements XadesVerifier {
 
 	/*************************************************************************************/
 
-	private Date getValidationDate(Collection<PropertyDataObject> qualifPropsData, XMLSignature signature,
+	private SignatureTimeStampProperty getValidationDate(Collection<PropertyDataObject> qualifPropsData, XMLSignature signature,
 			SignatureSpecificVerificationOptions verificationOptions) throws XAdES4jException {
 		List sigTsData = CollectionUtils.filterByType(qualifPropsData, SignatureTimeStampData.class);
 
 		// If no signature time-stamp is present, use the current date.
 		if (sigTsData.isEmpty()) {
-			return verificationOptions.getDefaultVerificationDate();
+
+		      SignatureTimeStampProperty signatureTimeStampProperty = new SignatureTimeStampProperty();
+		      signatureTimeStampProperty.setTime(verificationOptions.getDefaultVerificationDate());
+		      return signatureTimeStampProperty;
 		}
 
 		// TODO support multiple SignatureTimeStamps (section 7.3 last paragraph
@@ -227,7 +229,7 @@ class XadesVerifierImpl implements XadesVerifier {
 		Collection<PropertyInfo> props = this.qualifyingPropertiesVerifier.verifyProperties(sigTsData, ctx);
 		QualifyingProperty sigTs = props.iterator().next().getProperty();
 
-		return ((SignatureTimeStampProperty) sigTs).getTime();
+		return (SignatureTimeStampProperty) sigTs;
 	}
 
 	private static void doCoreVerification(XMLSignature signature,
@@ -336,7 +338,7 @@ class XadesVerifierImpl implements XadesVerifier {
 
 			@Override
 			public void addProps(Collection<UnsignedSignatureProperty> usp, XAdESVerificationResult res) {
-				PropertiesUtils.addXadesXLProperties(usp, res.getValidationData());
+				PropertiesUtils.addXadesXLProperties(usp, res.getValidationData() ,res.getTimeStampValidationData());
 				PropertiesUtils.addXadesXProperties(usp);
 			}
 		};

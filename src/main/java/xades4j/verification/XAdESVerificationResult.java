@@ -43,6 +43,7 @@ public class XAdESVerificationResult
     private final XAdESForm signatureForm;
     private final XMLSignature xmlSignature;
     private final ValidationData validationData;
+    private final ValidationData timeStampValidationData;
     private final Collection<PropertyInfo> properties;
     private final Collection<RawDataObjectDesc> signedDataObjects;
     /**/
@@ -54,11 +55,13 @@ public class XAdESVerificationResult
             XMLSignature xmlSignature,
             ValidationData validationData,
             Collection<PropertyInfo> properties,
-            Collection<RawDataObjectDesc> signedDataObjects)
+            Collection<RawDataObjectDesc> signedDataObjects, 
+            ValidationData timeStampValidationData)
     {
         this.signatureForm = signatureForm;
         this.xmlSignature = xmlSignature;
         this.validationData = validationData;
+        this.timeStampValidationData = timeStampValidationData;
         this.properties = properties;
         this.signedDataObjects = signedDataObjects;
 
@@ -173,5 +176,10 @@ public class XAdESVerificationResult
     public Collection<RawDataObjectDesc> getSignedDataObjects()
     {
         return signedDataObjects;
+    }
+    
+    public ValidationData getTimeStampValidationData()
+    {
+      return this.timeStampValidationData;
     }
 }
