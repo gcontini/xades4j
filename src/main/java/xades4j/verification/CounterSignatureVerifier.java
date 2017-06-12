@@ -16,16 +16,13 @@
  */
 package xades4j.verification;
 
+import com.google.inject.Inject;
 import org.apache.xml.security.exceptions.XMLSecurityException;
 import org.apache.xml.security.signature.Reference;
 import org.apache.xml.security.signature.SignedInfo;
 import org.apache.xml.security.utils.Constants;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.google.inject.Inject;
-
 import xades4j.XAdES4jException;
 import xades4j.properties.CounterSignatureProperty;
 import xades4j.properties.QualifyingProperty;
@@ -34,56 +31,56 @@ import xades4j.utils.DOMHelper;
 
 /**
  * XAdES section G.2.2.7
- * 
  * @author Luís
  */
-class CounterSignatureVerifier implements QualifyingPropertyVerifier<GenericDOMData> {
-	private final XadesVerifier verifier;
+class CounterSignatureVerifier implements QualifyingPropertyVerifier<GenericDOMData>
+{
+    private final XadesVerifier verifier;
 
-	@Inject
-	CounterSignatureVerifier(XadesVerifier verifier) {
-		this.verifier = verifier;
-	}
+    @Inject
+    CounterSignatureVerifier(XadesVerifier verifier)
+    {
+        this.verifier = verifier;
+    }
 
-	@Override
-	public QualifyingProperty verify(GenericDOMData propData, QualifyingPropertyVerificationContext ctx)
-			throws InvalidPropertyException {
+    @Override
+    public QualifyingProperty verify(
+            GenericDOMData propData,
+            QualifyingPropertyVerificationContext ctx) throws InvalidPropertyException
+    {
 
-		XAdESVerificationResult res;
-		try {
-			Element sigElem = DOMHelper.getFirstChildElement(propData.getPropertyElement());
-			res = verifier.verify(sigElem, null);
-		} catch (XAdES4jException ex) {
-			throw new CounterSignatureXadesVerificationException(ex);
-		}
 
-		// "Check that the enclosed signature correctly references the
-		// ds:SignatureValue
-		// present in the countersigned XAdES signature."
-		NodeList signatureValueNodeList = ctx.getSignature().getElement().getElementsByTagNameNS(Constants.SignatureSpecNS, Constants._TAG_SIGNATUREVALUE);
+        XAdESVerificationResult res;
+        try
+        {
+            Element sigElem = DOMHelper.getFirstChildElement(propData.getPropertyElement());
+            res = verifier.verify(sigElem, null);
+        } catch (XAdES4jException ex)
+        {
+            throw new CounterSignatureXadesVerificationException(ex);
+        }
 
-		try {
-			SignedInfo si = res.getXmlSignature().getSignedInfo();
-			Reference countersignedSignatureRef = getCountersignedSignatureRefFromSinedInfo(si);
-			Node subNode = countersignedSignatureRef.getContentsAfterTransformation().getSubNode();
-			for(int i = 0;i< signatureValueNodeList.getLength();i++){
-				if(subNode == signatureValueNodeList.item(i)){
-					return new CounterSignatureProperty(res); 
-				}
-			}
-			throw new CounterSignatureSigValueRefException();
-		} catch (XMLSecurityException e) {
-			// Shouldn't happen because the signature was already verified.
-			throw new CounterSignatureVerificationException(e);
-		}
-	}
+        // "Check that the enclosed signature correctly references the ds:SignatureValue
+        // present in the countersigned XAdES signature."
 
-	private Reference getCountersignedSignatureRefFromSinedInfo(SignedInfo si) throws XMLSecurityException, CounterSignatureSigValueRefException{
-		for (int i = 0; i < si.getLength(); i++) {
-			Reference r = si.item(i);
-			if(r.getType().equals(CounterSignatureProperty.COUNTER_SIGNATURE_TYPE_URI))
-				return r;
-		}
-		throw new CounterSignatureSigValueRefException();
-	}
+        Node targetSigValueElem = ctx.getSignature().getElement().getElementsByTagNameNS(
+                Constants.SignatureSpecNS, Constants._TAG_SIGNATUREVALUE).item(0);
+
+        try
+        {
+            SignedInfo si = res.getXmlSignature().getSignedInfo();
+            for (int i = 0; i < si.getLength(); i++)
+            {
+                Reference r = si.item(i);
+                if (r.getContentsAfterTransformation().getSubNode() == targetSigValueElem)
+                    // The signature references the SignatureValue element.
+                    return new CounterSignatureProperty(res);
+            }
+            throw new CounterSignatureSigValueRefException();
+        } catch (XMLSecurityException e)
+        {
+            // Shouldn't happen because the signature was already verified.
+            throw new CounterSignatureVerificationException(e);
+        }
+    }
 }
